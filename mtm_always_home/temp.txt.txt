@@ -1,0 +1,174 @@
+Summary: 3.1.1.1 Unknown VLAN ID returned by RADIUS  
+id: 7057  
+Parent group(s): V-HNS RADIUS attribute failures (1st)
+ 
+Author: michael.gorr  
+Operation mode(s): None  
+Marked for regression: Yes  
+Status: active  
+Last modification: daniel.botea at 2012-02-07 15:18:11  
+Mode: manual  
+Script:  
+Runs statistics: total success failure fatal known_issue n/a 
+4 2 2 0 0 0 
+ 
+Secondary feature(s): None 
+ 
+Description: 3.1.1 Fallback method: Consider User at Home
+For these tests, configure the VSC to use V-HNS as the L3 Mobility type with a fallback method of “Consider user at home.”  
+
+3.1.1.1 Unknown VLAN ID returned by RADIUS
+Test Objective: 
+Verify behavior when RADIUS returns a VLAN ID that is not defined on a controller in the network.  Consider the user at home and egress the client’s traffic locally from the MAP using the VLAN ID returned by RADIUS.
+Steps: 
+1.	Configure a client profile of vlanuser99 in RADIUS that returns VLAN ID of 99
+2.	Make sure that VLAN 99 is not defined as a network profile or an interface on the controller.
+3.	Associate vlanuser99 to msm10-1.
+4.	Traffic is egressed locally at the MAP using VLAN 99.
+Pass/Fail criteria:
+1.	Message must be logged that an unknown VLAN was returned
+2.	Traffic must be egressed locally from MAP using VLAN 99.
+
+Test results interpretation: Major   
+
+
+
+
+
+Summary: 3.1.1.2 VLAN ID not returned by RADIUS  
+id: 7058  
+Parent group(s): V-HNS RADIUS attribute failures (2nd)
+ 
+Author: michael.gorr  
+Operation mode(s): None  
+Marked for regression: Yes  
+Status: active  
+Last modification: daniel.botea at 2012-02-07 15:18:21  
+Mode: manual  
+Script:  
+Runs statistics: total success failure fatal known_issue n/a 
+4 3 1 0 0 0 
+ 
+Secondary feature(s): None 
+ 
+Description: 3.1.1 Fallback method: Consider User at Home
+For these tests, configure the VSC to use V-HNS as the L3 Mobility type with a fallback method of “Consider user at home.”  
+
+
+
+3.1.1.2 VLAN ID not returned by RADIUS
+
+Test Objective: 
+Verify behavior when RADIUS does not return a VLAN attribute.  Consider the user at home and egress traffic on the untagged interface of the MAP.
+Steps: 
+1.	Configure a client profile of novlanuser in RADIUS that does not have a return attribute.
+2.	Remove the egress network defined on the vsc1 binding of msm10-1.
+3.	Associate novlanuser to vsc1 on msm10-1.
+4.	Traffic is egressed locally from msm10-1 using the untagged interface.
+
+Pass/Fail criteria:
+1.	Traffic must be egressed locally from MAP.
+
+Test results interpretation: Major   
+
+
+Summary: 3.1.1.3 Unknown VLAN name returned by RADIUS  
+id: 7059  
+Parent group(s): V-HNS RADIUS attribute failures (3rd)
+ 
+Author: michael.gorr  
+Operation mode(s): None  
+Marked for regression: Yes  
+Status: active  
+Last modification: daniel.botea at 2012-02-07 15:18:36  
+Mode: manual  
+Script:  
+Runs statistics: total success failure fatal known_issue n/a 
+4 4 0 0 0 0 
+ 
+Secondary feature(s): None 
+ 
+Description: 3.1.1 Fallback method: Consider User at Home
+For these tests, configure the VSC to use V-HNS as the L3 Mobility type with a fallback method of “Consider user at home.”  
+
+Test Objective: 
+Verify behavior when RADIUS returns a VLAN name that is not defined on a controller in the network.  In this case, we do not know which VLAN ID should be used (since only a name was returned).  Block traffic.
+Steps: 
+1.	Configure a client profile of noname in RADIUS that returns a VLAN name of noname
+2.	Make sure that noname is not defined as a network profile on the controller.
+3.	Associate noname to msm10-1.
+4.	Traffic is blocked locally on msm10-1
+Pass/Fail criteria:
+1.	Message must be logged that 'Network definition does not exist' on the AP
+ie: Jul 28 11:40:15 err	eapolserver  CN0AD3300N Network definition 'noname' does not exist (mac-address=00-24-D7-BE-3A-CC)
+2.	Traffic must be blocked
+
+Test results interpretation: Major   
+
+
+Summary: 3.2.1 Non-local VLAN is not configured on controller  
+id: 7063  
+Parent group(s): E-HNS failures (1st)
+ 
+Author: michael.gorr  
+Operation mode(s): None  
+Marked for regression: Yes  
+Status: active  
+Last modification: anwar.moukaddem at 2012-02-29 10:43:19  
+Mode: manual  
+Script:  
+Runs statistics: total success failure fatal known_issue n/a 
+4 4 0 0 0 0 
+ 
+Secondary feature(s): None 
+ 
+Description: Test Objective: 
+Verify that when using E-HNS, the case is handled when a VSC has an egress network defined in the binding that is not configured as a local network and that VLAN is not defined locally on the controller 
+
+Note(Anwar): Defined locally on the controller means bind to a local port on the controller
+
+
+
+Steps: 
+1.	Delete VLAN interface 1001 from msm7xx-1
+2.	Configure VSC1 on msm10-1 to have an egress network binding of VLAN 1001
+3.	Do not configure VLAN 1001 as a home network on the Network Assignment page
+Pass/Fail criteria:
+1.	Traffic is blocked.  (Check Status/Mobility page: "Blocked: Home network unknown")
+
+Test results interpretation: Major   
+
+
+Summary: 3.2.2 Non-local VLAN range is not configured on controller  
+id: 7064  
+Parent group(s): E-HNS failures (2nd)
+ 
+Author: michael.gorr  
+Operation mode(s): None  
+Marked for regression: Yes  
+Status: active  
+Last modification: anwar.moukaddem at 2012-02-29 10:44:11  
+Mode: manual  
+Script:  
+Runs statistics: total success failure fatal known_issue n/a 
+3 3 0 0 0 0 
+ 
+Secondary feature(s): None 
+ 
+Description: Test Objective: 
+Verify that when using E-HNS, the case is handled when a VSC has an egress network range defined in the binding that is not configured as a local network and that one or more of the VLANs is not defined locally on the controller.
+
+Note(Anwar): Defined locally on the controller means bind to a local port on the controller
+
+
+
+Steps: 
+1.	Create VLAN interfaces 2001 and 2002 on msm7xx-1
+2.	Configure VSC1 on msm10-1 to have an egress network binding of range WLAN1 (VLANs 2001-2003)
+3.	Do not configure WLAN1 as a home network on the Network Assignment page
+Pass/Fail criteria:
+1.	Traffic is blocked.  (Check Status/Mobility page: "Blocked: Home network unknown")
+
+Test results interpretation: Major   
+
+end
