@@ -47,24 +47,28 @@ class Unknown_VLAN_name_returned_by_RADIUS_at_home extends MTMTest
         $sTestUser="vlanuser99";
         $sSetupID=$this->framework->GetTestbed()->GetName();
         $sTestSsid="MTM_VLAN_23".substr($sSetupID,5,2);
-        
+        $this->updateFallbackMethod($sTestSsid,"Assume_Home");        
         //Create a user that will egress to unknown vlan network (vlan 99)
         $oUser=new User($sTestUser,$sTestUser,"Enabled");        
         $oUser->updateEgressVlan('vlan99');
+		
+		$this->syncAPs();
+		
         $this->wcbAssociateAndAuth("wpa2_dynamic",$sTestUser,$sTestUser,$sTestSsid,"PEAPVER0");
-//        $bRC=$this->verifyTrafficEgressOnRightPort($iVlanID);
-//        if ($bRC == FALSE) 
-//        {
-//            Step::error("traffic is NOT egressed out the correct port on the controller");
-//            return FAIL;
-//        } 
-//        else 
-//        {
-//            Step::ok("traffic is egressed out the correct port on the controller");
-//        }              
-         return PASS;
-            
-        
+		
+        Step::start("Check if the traffic must be blocked");
+		
+        if($this->checkContentInPage("/stat/l3_overview.asp","Blocked: Home network unknown")==FALSE)
+        {
+             Step::error("Traffic is not blocked,but should be");
+             return FAIL;
+        }
+        else
+        {
+             Step::ok("Traffic is blocked");        
+        }
+        $this->updateFallbackMethod($sTestSsid,"None");
+        return PASS;            	
 	}
 
 }

@@ -29,13 +29,6 @@ require_once ('MTMTest.php');
 class Unknown_VLAN_name_returned_by_RADIUS extends MTMTest
 {
 
-	function __construct()
-	{
-        
-        
-        echo 'nothing';
-	}
-
 	function __destruct()
 	{
 	}
@@ -62,6 +55,9 @@ class Unknown_VLAN_name_returned_by_RADIUS extends MTMTest
         //Create a user that will egress to unknown vlan network (vlan 99)
         $oUser=new User($sTestUser,$sTestUser,"Enabled");        
         $oUser->updateEgressVlan('vlan99');
+		
+		$this->syncAPs();
+		
         $this->wcbAssociateAndAuth("wpa2_dynamic",$sTestUser,$sTestUser,$sTestSsid,"PEAPVER0");
 		
         Step::start("Check if the traffic must be blocked");

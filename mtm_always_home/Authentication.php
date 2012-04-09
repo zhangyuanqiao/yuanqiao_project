@@ -23,20 +23,6 @@ class Authentication
 	public $remote_state = "Disabled";
 	public $accounting_radius_profile = "picbois";
 	public $accounting_state = "Disabled";
-	private $bAccountingState = "Disabled";
-	private $bLocalState = "Enabled";
-	private $bRadiusProfile = "picbois";
-	private $bRemoteState = "Disabled";
-	private $sAccountingRadiusProfile = "picbois";
-	/**
-	 * 
-	 * <ul>
-	 * 	<li>MAC </li>
-	 * 	<li>802.1x </li>
-	 * 	<li>HTML</li>
-	 * </ul>
-	 */
-	private $sAuthenticationType;
 
 	function __construct()
 	{

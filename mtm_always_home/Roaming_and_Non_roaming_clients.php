@@ -1,7 +1,7 @@
 <?php
+
 require_once ('MTMTest.php');
 require_once ('Utility.php');
-
 
 /**
  * Test Objective:
@@ -30,96 +30,76 @@ require_once ('Utility.php');
  * @version 1.0
  * @updated 09-Mar-2012 3:02:36 PM
  */
-class Roaming_and_Non_roaming_clients extends MTMTest
-{
-                                  
+class Roaming_and_Non_roaming_clients extends MTMTest {
 
-	/**
-	 * Main entry for test
-	 */
-	public function MyExecute()
-	{
-        
-        $this->bDoNeedCleanup=FALSE; 
+    /**
+     * Main entry for test
+     */
+    public function MyExecute() {
+
+        $this->doNeedCleanup = FALSE;
         Utility::turnDebugOff();
         /*
-        * 1. Prepare the mobility domain as in the documentation .other necessary steps are implenment in preTest
-        */
-        Step::start("Prepare the mobility domain as in the documentation");              
-        $return_code=$this->createMobilityDomain();
+         * 1. Prepare the mobility domain as in the documentation .other necessary steps are implenment in preTest
+         */
+        Step::start("Prepare the mobility domain as in the documentation");
+        $bRC = $this->createMobilityDomain();
         $this->preTest();
-        if($return_code==FALSE)
-        {
+        if ($bRC == FALSE) {
             Step::error("fail to prepare the mobility domain as in the documentation");
             return FAIL;
+        } else {
+            Step::ok("Prepare the mobility domain as in the documentation");
         }
-        else
-        {
-            Step::ok("Prepare the mobility domain as in the documentation");                    
-        }        
-        
-        $vlan_for_vsc1=substr($this->sHomeVlanForAp1,4,4);      //21##
-        $ssid1="MTM_VLAN_".$vlan_for_vsc1;
-        $roaming_username="user".$vlan_for_vsc1;         
-        $no_roaming_username="user"."no_vlan";
-        
-                 
-        //Create a user that will egress to that network (vlan ID)
-        $user1=new User($roaming_username,$roaming_username,"Enabled");        
-        $user1->updateEgressVlan($vlan_for_vsc1);        
-        
-        $user2=new User($no_roaming_username,$no_roaming_username,"Enabled");        
-        
-        //AP2 has the homework(23##) ,not 21## ,22##  ,turn the AP1 off ,and turn on AP2
-        $this->apRadioControl($this->scenario->GetDevice('AP2'),"Enabled"); 
-        $this->apRadioControl($this->scenario->GetDevice('AP1'),"Disabled");                    
-        /*
-        *simulate the step3:
-        *user21## should be tunneled back to his homework.
 
-        *  
-        */ 
-        
-        Step::start("Roaming, data should be tunned");                   
-                   
-        $this->wcbAssociateAndAuth("wpa2_dynamic",$roaming_username,$roaming_username,$ssid1,"PEAPVER0");       
-        
-        if($this->checkContentInPage("/stat/l3_overview.asp","Data tunnel")==FALSE)
-        {
-             Step::error("Roaming, data should be tunned,but not tunned");
-             return FAIL;
-        }
-        else
-        {
-             Step::ok("Roaming, data tunned");        
+        $sVlanForVsc1 = substr($this->sHomeVlanForAp1, 4, 4);      //21##
+        $sSsid1 = "MTM_VLAN_" . $sVlanForVsc1;
+        $sRoamingUsername = "user" . $sVlanForVsc1;
+        $sNoRoamingUsername = "user" . "no_vlan";
+
+
+        //Create a user that will egress to that network (vlan ID)
+        $oUser1 = new User($sRoamingUsername, $sRoamingUsername, "Enabled");
+        $oUser1->updateEgressVlan($sVlanForVsc1);
+
+
+        //AP2 has the homework(23##) ,not 21## ,22##  ,turn the AP1 off ,and turn on AP2
+        $this->apRadioControl($this->scenario->GetDevice('AP2'), "Enabled");
+        $this->apRadioControl($this->scenario->GetDevice('AP1'), "Disabled");
+        /*
+         * simulate the step3:
+         * user21## should be tunneled back to his homework.
+
+         *  
+         */
+
+        Step::start("Roaming, data should be tunned");
+
+        $this->wcbAssociateAndAuth("wpa2_dynamic", $sRoamingUsername, $sRoamingUsername, $sSsid1, "PEAPVER0");
+
+        if ($this->checkContentInPage("/stat/l3_overview.asp", "Data tunnel") == FALSE) {
+            Step::error("Roaming, data should be tunned,but not tunned");
+            return FAIL;
+        } else {
+            Step::ok("Roaming, data tunned");
         }
         /*
          * 5,Non-VLAN user should be egressed locally.
-    * 
-        */
-        Step::start("Non-VLAN user should be egressed locally");                   
-        $this->wcbAssociateAndAuth("wpa2_dynamic",$no_roaming_username,$no_roaming_username,$ssid1,"PEAPVER0");       
-        
-        if($this->checkContentInPage("/stat/l3_overview.asp","Data tunnel")==TRUE)
-        {
-             Step::error("Non-VLAN user should be egressed locally,but tunned.WRONG");
-             return FAIL;
-        }
-        else
-        {
-             Step::ok("Non-VLAN user should be egressed locally");        
-        }
-        
-        return PASS;
-        
-	}
+         * 
+         */
+        Step::start("Non-VLAN user should be egressed locally");
+        $this->wcbAssociateAndAuth("wpa2_dynamic", $sNoRoamingUsername, $sNoRoamingUsername, $sSsid1, "PEAPVER0");
 
-	/**
-	 * Clean up the particular setting for next test run
-	 */
-	public function Cleanup()
-	{
-	}
-    
+        if ($this->checkContentInPage("/stat/l3_overview.asp", "Data tunnel") == TRUE) {
+            Step::error("Non-VLAN user should be egressed locally,but tunned.WRONG");
+            return FAIL;
+        } else {
+            Step::ok("Non-VLAN user should be egressed locally");
+        }
+
+        return PASS;
+    }
+
 }
+
 ?>

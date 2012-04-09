@@ -70,7 +70,7 @@ class Termination_using_any_interface_on_the_ccontroller extends MTMTest
         array("port"=>"LAN_Port","assignMode"=>"DHCP_IP","ipAddress"=>"192.168.1.100","ipMask"=>"255.255.255.0","ipGateway"=>"192.168.1.254","natState"=>"Enabled")
         );
         
-        
+        $this->syncAPs();
         /*
         *For each vlan setting, update vlan adn check egress traffic 
         */

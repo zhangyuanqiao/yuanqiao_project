@@ -140,6 +140,26 @@ class VSCProfile {
         $this->oWirelessProtection = $oWirelessProtection;
     }
 
+	/*
+	 * Update fallback method
+	 *
+	*/
+	public function updateFallbackMethod($sFallbackMethod)
+	{
+		if($sFallbackMethod != "Assume_Home" && $sFallbackMethod != "None"){
+			Logger::ToConsoleAndFile("wrong method.just support Assume_Home and None");	
+			return FALSE;
+		}
+
+		$sSoapCmd = "UpdateVirtualSCL3Mobility vscName=$this->sName state=Enabled homeNetworkSelectionMethod=VLAN_Based homeNetworkSelectionFallbackMethod=$sFallbackMethod";
+        $sRetCode = SOAP::sendCommand(VSCProfile::$sMscIP, $sSoapCmd);
+        if ($sRetCode != 0) {
+            return FALSE;
+        }
+        return TRUE;
+	}
+	
+	
     public function commit() {
         // create VSC
         $sSoapCmd = "AddVirtualSC vscName=$this->sName \n"

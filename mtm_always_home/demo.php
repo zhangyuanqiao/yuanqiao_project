@@ -65,13 +65,13 @@ class demo extends MTMTest
         $MYVSC=new VSC("V2","V2","WPA2(AES/CCMP)","802.1X");
         $MYVSC->commit();
         
-        $MYVSC=new VSC("V3","V3","WEP","HTML");
-        $my_wireless=new WirelessProtection();
-        $my_wireless->setWirelessProtectionType("WEP");
-        $my_wireless->setKeySource("STATIC");
-        $my_wireless->setKey(array( "c67347dd12a787b7a132f690d0", "c67347dd12a797b7a132f690d1", "c673a7dd12a787b7a132f690d2", "c67347dd16a787b7a132f690d3", "2", "HEX"));
-        $MYVSC->configureWirelessProtection($my_wireless); 
-        $MYVSC->commit();
+//        $MYVSC=new VSC("V3","V3","WEP","HTML");
+//        $my_wireless=new WirelessProtection();
+//        $my_wireless->setWirelessProtectionType("WEP");
+//        $my_wireless->setKeySource("STATIC");
+//        $my_wireless->setKey(array( "c67347dd12a787b7a132f690d0", "c67347dd12a797b7a132f690d1", "c673a7dd12a787b7a132f690d2", "c67347dd16a787b7a132f690d3", "2", "HEX"));
+//        $MYVSC->configureWirelessProtection($my_wireless); 
+//        $MYVSC->commit();
         
         $MYVSC=new VSC("V3","V3","WPA(TKIP)","HTML");
         $my_wireless=new WirelessProtection();
@@ -83,26 +83,26 @@ class demo extends MTMTest
         
                 
         
-        $MYVSC=new VSC("V4","V4","None","MAC");
-        $MYVSC->commit();
-        
-        $MYVSC=new VSC("V5","V5","None","HTML_MAC");
-        $MYVSC->commit();
-        
-        $MYVSC=new VSC("V6","V6","WEP","802.1X");
-        $MYVSC->commit();
-        
-        $MYVSC=new VSC("V7","V7","WPA2(AES/CCMP)","802.1X");
-        $MYVSC->commit();
-        
-        $MYVSC=new VSC("V8","V8","WPA/WPA2","802.1X");
-        $MYVSC->commit();
-        $MYVSC=new VSC("V2","V2","WEP");
-        $MYVSC->commit();  
-        
-        $MYVSC=new VSC("V3","V3","WEP","HTML");   
-        $MYVSC->commit();  
-        
+//        $MYVSC=new VSC("V4","V4","None","MAC");
+//        $MYVSC->commit();
+//        
+//        $MYVSC=new VSC("V5","V5","None","HTML_MAC");
+//        $MYVSC->commit();
+//        
+ //       $MYVSC=new VSC("V6","V6","WEP","802.1X");
+//        $MYVSC->commit();
+//        
+//        $MYVSC=new VSC("V7","V7","WPA2(AES/CCMP)","802.1X");
+//        $MYVSC->commit();
+//        
+//        $MYVSC=new VSC("V8","V8","WPA/WPA2","802.1X");
+//        $MYVSC->commit();
+//        $MYVSC=new VSC("V2","V2","WEP");
+//        $MYVSC->commit();  
+//        
+//        $MYVSC=new VSC("V3","V3","WEP","HTML");   
+//        $MYVSC->commit();  
+//        
                  
         Utility::insertBreakPoint();   
         return "passed";

@@ -6,7 +6,7 @@
  * Just to store all configurations of testing enviroment.
  * @author Yuanqiao Zhang yuanqiao.zhang@hp.com QA
  * @version 1.0
- * @updated 27-Feb-2012 10:18:12 AM
+ * @updated 27-Feb-2012 9:48:25 AM
  */
 class MTMEnv
 {

@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 require_once ("VSCProfile.php");
 require_once ('MTMEnv.php');
 require_once ('Group.php');
@@ -23,8 +24,7 @@ define('SWITCH_IP', "172.16.254.2");
  * @version 1.0
  * @updated 29-Mar-2012 11:40:09 AM
  */
-abstract class MTMTest extends Test
-{
+abstract class MTMTest extends Test {
 
     protected $sHomeVlanForAp1;
     protected $sHomeVlanForAp2;
@@ -40,10 +40,10 @@ abstract class MTMTest extends Test
     protected $bDoNeedCleanup;
 
     /**
-	 * this attribute is to indicate that the running case state.
-	 * Enabled means that it is the last MTM test case.
-	 * Disabled otherwise.  
-	 */
+     * this attribute is to indicate that the running case state.
+     * Enabled means that it is the last MTM test case.
+     * Disabled otherwise.  
+     */
     protected $bLastCaseState;
 
     /**
@@ -53,18 +53,18 @@ abstract class MTMTest extends Test
     protected $bTestEnvState;
 
     /**
-	 * include the following info needed to serialize
-	 * network profile list
-	 * vlan list
-	 * user list
-	 * vsc list
-	 * group list
-	 */
+     * include the following info needed to serialize
+     * network profile list
+     * vlan list
+     * user list
+     * vsc list
+     * group list
+     */
     protected $fileTestConfiguration;
 
     /**
-	 * the 1st MAP 
-	 */
+     * the 1st MAP 
+     */
     protected $oAccessPoint;
 
     /**
@@ -81,16 +81,14 @@ abstract class MTMTest extends Test
     protected $sMscIP;
     protected $aoControllerList;
     protected $aoGroupList;
-	public $network_profile_list;
-	public $vsc_list;
 
     /**
-	 * Construction of obj
-	 * 
-	 * @param framework
-	 * @param testid
-	 * @param testscript
-	 */
+     * Construction of obj
+     * 
+     * @param framework
+     * @param testid
+     * @param testscript
+     */
     public function __construct($framework, $testid, $testscript) {
         parent::__construct($framework, $testid, $testscript);
         $this->job = $this->framework->GetJob();
@@ -99,38 +97,25 @@ abstract class MTMTest extends Test
 
         $aScenarioRoleList = $this->scenario->GetScenarioRole();
         $this->aoApList = $this->scenario->GetApList();
-        $this->oAccessPoint = $this->aoApList[1]; 
-        
+        $this->oAccessPoint = $this->aoApList[1];
+
         if (in_array('MASTER', $aScenarioRoleList)) {
             Logger::ToConsoleAndFile("This is a teaming scenario.\n", debug);
             $this->oController = $this->scenario->GetMaster();
-            $this->aoControllerList=$this->scenario->GetControllerList();      
+            $this->aoControllerList = $this->scenario->GetControllerList();
         } else {
             $this->oController = $this->scenario->GetDevice('MSC');
-//            $controller_mngmt_ip = $this->oController->GetManagementInterfaceIP();
-//            $serial_number = $this->oController->GetSerialNumber();
-//            $product_name =  $this->oController->GetProductName();
-
-//            $this->oController = $controllerObject;
-//            $this->oAccessPoint = $this->aoApList[1];
-
-//            MTMEnv::$msc1 = $controllerObject;
-//            MTMEnv::$msc1_ip = $controller_mngmt_ip;
-//            MTMEnv::$serial_of_msc1 = $serial_number;
-//            MTMEnv::$product_name_of_msc1 = $product_name;
-//            MTMEnv::$number_of_msc = 1;
         }
-        
-        $this->sMscIP=$this->oController->GetManagementInterfaceIP(); 
+
+        $this->sMscIP = $this->oController->GetManagementInterfaceIP();
 
         $this->aoWcbList = $this->scenario->GetWCBList();
         $this->oWcb = $this->aoWcbList[1];
         $this->sMscIP = $this->oController->GetManagementInterfaceIP();
-        VSCProfile::$sMscIP=$this->sMscIP;
+        VSCProfile::$sMscIP = $this->sMscIP;
         Group::$sMscIP = $this->sMscIP;
-        User::$sMscIP  = $this->sMscIP;
+        User::$sMscIP = $this->sMscIP;
         Utility::$msc_ip = $this->sMscIP;
-//        Utility::$product_name = $this->oController->GetProductName();
 
         $this->aoNetworkProfileList = array();
         $this->aoVscList = array();
@@ -140,15 +125,15 @@ abstract class MTMTest extends Test
         $this->aoApList = array();
 
         $this->fileTestConfiguration = array();
-        $this->test_env_state = $this->getConfiguration();
+        $this->bTestEnvState = $this->getConfiguration();
+        $this->bDoNeedCleanup = FALSE;
     }
 
     /**
      * Clean up the particular setting for next test run
      */
     function Cleanup() {
-        if (TRUE) 
-        {
+        if ($this->bDoNeedCleanup) {
             Group::moveAPToDefaultGroup($this->scenario->GetDevice('AP1')->GetInterface("eth0")->GetMAC());
             Group::moveAPToDefaultGroup($this->scenario->GetDevice('AP2')->GetInterface("eth0")->GetMAC());
             Group::deleteGroup("AREA1-A");
@@ -187,12 +172,12 @@ abstract class MTMTest extends Test
     }
 
     /**
-	 * add a new network profile
-	 * 
-	 * @param name
-	 * @param state
-	 * @param vlanID
-	 */
+     * add a new network profile
+     * 
+     * @param name
+     * @param state
+     * @param vlanID
+     */
     public function addNetworkProfile($sName, $bState, $iVlanID) {
         $sSoapCmd = "AddNetworkProfile name=$sName vlanIDState=$bState vlanID=$iVlanID\n";
 
@@ -202,23 +187,24 @@ abstract class MTMTest extends Test
         }
         return TRUE;
     }
-	
-	/*
-	 *	Delete the network assignation. 
-	 *	@param sLevel
-	 * 	@param sEntityName
-	 *	@param sNetworkDef
-	*/
-	public function deleteNetworkAssignation($sLevel, $sEntityName, $sNetworkDef) {
-	    $sSoapCmd = "ControlledNetworkDeleteNetworkAssignation level=$sLevel entityName=$sEntityName networkDef=$sNetworkDef\n";
+
+    /*
+     * 	Delete the network assignation. 
+     * 	@param sLevel
+     * 	@param sEntityName
+     * 	@param sNetworkDef
+     */
+
+    public function deleteNetworkAssignation($sLevel, $sEntityName, $sNetworkDef) {
+        $sSoapCmd = "ControlledNetworkDeleteNetworkAssignation level=$sLevel entityName=$sEntityName networkDef=$sNetworkDef\n";
 
         $retCode = SOAP::sendCommand($this->sMscIP, $sSoapCmd);
         if ($retCode != 0) {
             return FALSE;
         }
         return TRUE;
- 
-	}
+    }
+
     /**
      * Delete all network profiles
      */
@@ -233,32 +219,15 @@ abstract class MTMTest extends Test
     }
 
     /**
-	 * Map a vlan to a port
-	 * AddVLAN(networkProfileName, portId, assignationMode, ipAddress, ipMask,
-	 * ipGateway, natState) => ()
-	 * Example:
-	 * AddVLAN("myVLANNetwork","Internet_Port","IP_Static","192.168.10.10","255.255.
-	 * address, and enabled it.
-	 * AddVLAN("myVLANNetwork","Internet_Port","IP_Static","192.168.10.10","255.255.
-	 * 255.0","192.168.10.254","Disabled") Add a VLAN on Internet Port with a static
-	 * IP address, and disable it.
-	 * AddVLAN("myVLANNetwork","Internet_Port","DHCP_IP","","","","Enabled") Add a
-	 * VLAN on Internet Port that will get its IP address through DHCP, and enable it.
-	 * 
-	 * AddVLAN("myVLANNetwork","Internet_Port","DHCP_IP","","","","Disabled") Add a
-	 * VLAN on Internet Port that will get its IP address through DHCP, and disable it.
-	 * 
-	 * AddVLAN("myVLANNetwork","Internet_Port","No_IP","","","","Enabled") Add a VLAN
-	 * on Internet Port that will have no IP address, and enable it.
-	 * 
-	 * @param sNpName
-	 * @param sPortID
-	 * @param sAssignMode
-	 * @param sIpAddress
-	 * @param sIpMask
-	 * @param sIpGateway
-	 * @param bNatState
-	 */
+     * Map a vlan to a port
+     * @param sNpName
+     * @param sPortID
+     * @param sAssignMode
+     * @param sIpAddress
+     * @param sIpMask
+     * @param sIpGateway
+     * @param bNatState
+     */
     public function addVlan($sNpName, $sPortID, $sAssignMode, $sIpAddress, $sIpMask, $sIpGateway, $bNatState) {
         $sSoapCmd = "AddVLAN networkProfileName=$sNpName portId=$sPortID assignationMode=$sAssignMode ipAddress=$sIpAddress ipMask=$sIpMask  ipGateway=$sIpGateway natState=$bNatState";
 
@@ -300,19 +269,13 @@ abstract class MTMTest extends Test
     }
 
     /**
-	 * add a local network
-	 * 
-	 * @param oAP
-	 * @param iVlanID
-	 */
+     * add a local network
+     * 
+     * @param oAP
+     * @param iVlanID
+     */
     public function addLocalNetwork($oAP, $iVlanID) {
-        /*
-         * soap command:
-         * ControlledNetworkAddNetworkAssignation(level, entityName, networkDef) => ()
-          ControlledNetworkLevel_t level
-          string_t entityNameOn AP level, the entity name is the AP's MAC address
-          string_t networkDef
-         */
+
         $sApMac = $oAP->GetInterface('eth0')->GetMAC();
         $sSoapCmd = "ControlledNetworkUpdateL3MobilitySubnetListInheritance level=AP entityName=$sApMac state=Disabled\n"
                 . "ControlledNetworkAddNetworkAssignation level=AP entityName=$sApMac networkDef=$iVlanID\n";
@@ -326,11 +289,11 @@ abstract class MTMTest extends Test
     }
 
     /**
-	 * add a local network (Group Level)
-	 * 
-	 * @param sGrpName
-	 * @param sNpName
-	 */
+     * add a local network (Group Level)
+     * 
+     * @param sGrpName
+     * @param sNpName
+     */
     public function addLocalNetworkGroupLevel($sGrpName, $sNpName) {
         $sSoapCmd = "ControlledNetworkAddNetworkAssignation level=Group entityName=$sGrpName networkDef=$sNpName \n";
 
@@ -343,10 +306,10 @@ abstract class MTMTest extends Test
     }
 
     /**
-	 * prepare for the test enviroment 
-	 */
+     * prepare for the test enviroment 
+     */
     public function preTest() {
-        if ($this->test_env_state == TRUE) {
+        if ($this->bTestEnvState == TRUE) {
             return TRUE;
         }
 
@@ -395,12 +358,11 @@ abstract class MTMTest extends Test
             }
         }
 
-        system("banner $home_vlan_for_ap1");
-        $home_vlan_for_ap1 = "VLAN" . "21" . $this->framework->GetTestbed()->GetId();
-        $home_vlan_for_ap1 = "VLAN" . "23" . $this->framework->GetTestbed()->GetId();
-
-        $this->addLocalNetwork($this->scenario->GetDevice('AP1'),$home_vlan_for_ap1);
-        $this->addLocalNetwork($this->scenario->GetDevice('AP2'),$home_vlan_for_ap2);
+        $sSetupID = $this->framework->GetTestbed()->GetName();
+        $home_vlan_for_ap1 = "VLAN" . "21" . substr($sSetupID, 5, 2);
+        $home_vlan_for_ap2 = "VLAN" . "23" . substr($sSetupID, 5, 2);
+        $this->addLocalNetwork($this->scenario->GetDevice('AP1'), $home_vlan_for_ap1);
+        $this->addLocalNetwork($this->scenario->GetDevice('AP2'), $home_vlan_for_ap2);
 
         /*
          * config the local switch.the port 1-7 is the member of any vlan. 11**-19**,21**-29** 
@@ -414,28 +376,27 @@ abstract class MTMTest extends Test
     }
 
     /**
-	 * The user login by the WCB
-	 * 
-	 * @param sUserName
-	 * @param sPassWord
-	 * @param sDefaultPage
-	 */
+     * The user login by the WCB
+     * 
+     * @param sUserName
+     * @param sPassWord
+     * @param sDefaultPage
+     */
     public function userLogin($sUserName, $sPassWord, $sDefaultPage) {
         $temparray = array();
-        $sWcbIP=$this->oWcb->GetManagementInterfaceIP(); 
-//      $this->CallBashFunction("g_do_login", "LOCAL NO_ACCT QUICK_LOGIN WCB_IP $sUserName $sPassWord $sDefaultPage", $temparray, $this->oController, $this->oAccessPoint, null);
+        $sWcbIP = $this->oWcb->GetManagementInterfaceIP();
         $this->CallBashFunction("g_do_login", "LOCAL NO_ACCT QUICK_LOGIN $sWcbIP $sUserName $sPassWord $sDefaultPage", $temparray, $this->oController, $this->oAccessPoint, null);
     }
 
     /**
-	 * wcb assocates with AP,and get authenticated
-	 * 
-	 * @param sAuthType
-	 * @param sUserName
-	 * @param sPassWord
-	 * @param sSsid
-	 * @param sEapType
-	 */
+     * wcb assocates with AP,and get authenticated
+     * 
+     * @param sAuthType
+     * @param sUserName
+     * @param sPassWord
+     * @param sSsid
+     * @param sEapType
+     */
     public function wcbAssociateAndAuth($sAuthType, $sUserName, $sPassWord, $sSsid, $sEapType) {
         $oWCB = null;
 
@@ -457,8 +418,8 @@ abstract class MTMTest extends Test
         $asConnectionProperties['authType'] = $sAuthType;
         $asConnectionProperties['username'] = $sUserName;
         $asConnectionProperties['password'] = $sPassWord;
-        $asConnectionProperties['ssid']     = $sSsid;
-        $asConnectionProperties['eapType'] =  $sEapType;
+        $asConnectionProperties['ssid'] = $sSsid;
+        $asConnectionProperties['eapType'] = $sEapType;
 
         $oWCB->configureWCB($asConnectionProperties);
         // Do not check the ssid in the ap's driver'
@@ -567,8 +528,8 @@ abstract class MTMTest extends Test
     }
 
     /**
-	 * create network profiles, VSCs,User, and vlans 
-	 */
+     * create network profiles, VSCs,User, and vlans 
+     */
     public function createNetworks() {
         $aInterfaceList = array('eth0' => 'Internet_Port', 'eth1' => 'LAN_Port');
         Logger::ToConsoleAndFile("
@@ -604,7 +565,7 @@ abstract class MTMTest extends Test
                     array_push($this->aoNetworkProfileList, $sNpName);
 
                     //NOT set the egree vlan to vsc yet
-                    $oVSC = new VSCProfile("MTM_VLAN_" . $iVlanID, "MTM_VLAN_" . $iVlanID,"WPA2(AES/CCMP)","802.1X");
+                    $oVSC = new VSCProfile("MTM_VLAN_" . $iVlanID, "MTM_VLAN_" . $iVlanID, "WPA2(AES/CCMP)", "802.1X");
                     $oVSC->create4MTM();
 
 //                    $vsc=new VSC("MTM_VLAN_".$vlan_id,"MTM_VLAN_".$vlan_id,"WPA2(AES/CCMP)","802.1X");
@@ -613,13 +574,11 @@ abstract class MTMTest extends Test
 //                    $vsc->enableL3Mobility($vsc->name);
                     $oVSC->updateL3MobilityState("Enabled");
                     array_push($this->aoVscList, $oVSC);
-                    //$vscOBJ->setEgressNetworkProfileName($network_profile_name);                    
+                    //$vscOBJ->setEgressNetworkProfileName($network_profile_name);
                     //Create a user that will egress to that network (vlan ID)
                     $oUser = new User("MTM_user_id_" . $sNpName, "MTM_user_id_" . $sNpName, "Enabled");
-                    //Utility::insertBreakPoint("user");
 
                     $oUser->updateEgressVlan($iVlanID);
-                    //Utility::insertBreakPoint("$vlan_id EGRESS");
 
 
                     array_push($this->aoUserList, $oUser);
@@ -636,21 +595,19 @@ abstract class MTMTest extends Test
                             break;
                         }
                     }
-                    
-                    
                 }
             }
         }
     }
 
     /**
-	 * local switch configure
-	 * 
-	 * @param sSwitchIP
-	 * @param iVlanID
-	 * @param bTagState
-	 * @param sPortID
-	 */
+     * local switch configure
+     * 
+     * @param sSwitchIP
+     * @param iVlanID
+     * @param bTagState
+     * @param sPortID
+     */
     public function addPortToVlan($sSwitchIP, $iVlanID, $bTagState, $sPortID) {
         $sCmd = "config\n";
         $sCmd = $sCmd . "vlan $iVlanID $bTagState $sPortID\n";
@@ -668,14 +625,13 @@ abstract class MTMTest extends Test
     }
 
     /**
-	 * Enable/Disable radio
-	 * 
-	 * @param oAP
-	 * @param bRadioState
-	 */
+     * Enable/Disable radio
+     * 
+     * @param oAP
+     * @param bRadioState
+     */
     public function apRadioControl($oAP, $bRadioState) {
-        //ControlledNetworkUpdateRadioChannelAndMode(level, entityName, radioId, productType, radioState, autoChannelState, channel, radioOperatingMode, radioPhyType)
-        //ControlledNetworkUpdateRadioChannelAndMode("Group", "Default Group", "Radio_1", "MSM320", "Enabled", "Enabled", "", "Access_Point", "802.11a");
+
         $sProductType = $oAP->GetProductName();
 
         if ($sProductType == "MSM410") {
@@ -713,11 +669,11 @@ abstract class MTMTest extends Test
     }
 
     /**
-	 * To check if the expected content is in the specified page.
-	 * 
-	 * @param sURL    the page we are checking
-	 * @param sContent    the content expected, a string 
-	 */
+     * To check if the expected content is in the specified page.
+     * 
+     * @param sURL    the page we are checking
+     * @param sContent    the content expected, a string 
+     */
     public function checkContentInPage($sURL, $sContent) {
         //Start the selenium server and open up the browser 
         WEB::startBrowser($this->sMscIP, $this->oController->GetProductName());
@@ -777,14 +733,14 @@ abstract class MTMTest extends Test
     }
 
     /**
-	 * 
-	 * NONE ,both aps' radios are off
-	 * AP1,AP1's radio is on
-	 * AP2,AP2's radio is on
-	 * AP1_AP2,AP1's radio adn AP2' ARE on
-	 * 
-	 * @param sAP
-	 */
+     * 
+     * NONE ,both aps' radios are off
+     * AP1,AP1's radio is on
+     * AP2,AP2's radio is on
+     * AP1_AP2,AP1's radio adn AP2' ARE on
+     * 
+     * @param sAP
+     */
     public function turnOnAP($sAP) {
         if ($sAP == NONE) {
             $this->apRadioControl($this->scenario->GetDevice('AP1'), "Disabled");
@@ -886,63 +842,164 @@ abstract class MTMTest extends Test
         }
     }
 
-	/**
-	 * Main entry for test
-	 */
-	public function MyExecute()
-	{
-	}
+    /**
+     * Main entry for test
+     */
+    public function MyExecute() {
+        
+    }
 
-	/**
-	 * Checks to make sure a client's traffic is egressed on the correct VLAN.
-	 * This is accomplished by attempting to ping the client from the testbed using
-	 * the interface cooresponding  to that VLAN.
-	 * 
-	 * @param sVlanID
-	 */
-	public function verifyTrafficEgressOnRightPort($sVlanID)
-	{
+    /**
+     * Checks to make sure a client's traffic is egressed on the correct VLAN.
+     * This is accomplished by attempting to ping the client from the testbed using
+     * the interface cooresponding  to that VLAN.
+     * 
+     * @param sVlanID
+     */
+    public function verifyTrafficEgressOnRightPort($sVlanID) {
 
-        $iVlanID=trim($sVlanID,"A..Za..z ");    
+        $iVlanID = trim($sVlanID, "A..Za..z ");
         echo $iVlanID;
         $sInterface = $this->framework->GetTestbed()->GetInterfaceName($iVlanID);
-        $aExecOutput=array();
-        $sWcbIP=$this->oWcb->GetManagementInterfaceIp();
+        $aExecOutput = array();
+        $sWcbIP = $this->oWcb->GetManagementInterfaceIp();
         //Logger::toConsoleAndFile("Executing: ping -I $sInterface\.$iVlanID -c 5 $sWcbIP");
         Logger::toConsoleAndFile("Executing: ping -I $sInterface -c 5 $sWcbIP");
-        exec("ping -I $sInterface -c 5 $sWcbIP",$aExecOutput,$sRC); 
+        exec("ping -I $sInterface -c 5 $sWcbIP", $aExecOutput, $sRC);
         Logger::toConsoleAndFile($aExecOutput);
-        if($sRC==0)
-        {
+        if ($sRC == 0) {
             return TRUE;
-        }
-        else
-        {
+        } else {
             return FALSE;
-        } 
-	}
+        }
+    }
 
-	/**
-	 * 
-	 * @param sNpName
-	 * @param sPortID
-	 * @param sAssignMode
-	 * @param sIpAddress
-	 * @param sIpMask
-	 * @param sIpGateway
-	 * @param bNatState
-	 */
-	public function updateVlan($sNpName, $sPortID, $sAssignMode, $sIpAddress, $sIpMask, $sIpGateway, $bNatState)
-	{
+    /**
+     * 
+     * @param sNpName
+     * @param sPortID
+     * @param sAssignMode
+     * @param sIpAddress
+     * @param sIpMask
+     * @param sIpGateway
+     * @param bNatState
+     */
+    public function updateVlan($sNpName, $sPortID, $sAssignMode, $sIpAddress, $sIpMask, $sIpGateway, $bNatState) {
         $sSoapCmd = "UpdateVLAN networkProfileName=$sNpName  assignationMode=$sAssignMode ipAddress=$sIpAddress ipMask=$sIpMask  ipGateway=$sIpGateway natState=$bNatState";
 
         $sRetCode = SOAP::sendCommand($this->sMscIP, $sSoapCmd);
-        if ($sRetCode != 0) 
-        {
+        if ($sRetCode != 0) {
             return FALSE;
         }
         return TRUE;
-	}
+    }
+
+    public function updateFallbackMethod($sVscName, $sFallbackMethod) {
+        if ($sFallbackMethod != "Assume_Home" && $sFallbackMethod != "None") {
+            Logger::ToConsoleAndFile("wrong method.just support Assume_Home and None");
+            return FALSE;
+        }
+
+        $sSoapCmd = "UpdateVirtualSCL3Mobility vscName=$sVscName state=Enabled homeNetworkSelectionMethod=VLAN_Based homeNetworkSelectionFallbackMethod=$sFallbackMethod";
+        $sRetCode = SOAP::sendCommand(VSCProfile::$sMscIP, $sSoapCmd);
+        if ($sRetCode != 0) {
+            return FALSE;
+        }
+        return TRUE;
+    }
+
+    /**
+     *   This fun is from Eric. I kept his naming . but removed the step wrap.
+     * 	Inputs:
+     *
+     * 			$controllerIP: The IP of the controller to perform the dumpstats on
+     * 			$vlanID: This parameter dictates how the output will be validated, if at all, using the following settings:
+     * 			
+     * 					 -If an integer >=1 is given, it will verify that we are egressed onto that VLAN.
+     * 					 -If a 'b' is given, the function will check the output to make sure the status of the associated client is 'Blocked'.
+     * 					 -If a -1 is given, the function will ensure that the dumpstats output is empty.				
+     * 					 -If a NULL is given, the function will not perform any validation and just log the output. This is the default behaviour.
+     * 
+     */
+    function verifyDumpStatus($controllerIP, $vlanID = NULL) {
+        Logger::ToConsoleAndFile("Getting dumpstats 99 output from controller $controllerIP");
+
+        $output_array = array();
+        $temp_array = array();
+        $success = TRUE;
+
+        //Send the ssh command using the new ssh2 functionality.
+        Logger::ToConsoleAndFile("Sending dumpstats 99 to : $controllerIP", debug);
+        $success = SSH::sendCommand($controllerIP, "", "", "dumpstats 99", $output_array, true);
+
+        Logger::ToConsoleAndFile("Dumpstats command returned a $success");
+        Logger::ToConsoleAndFile("\n\n" . $output_array[0]);
+
+        if ($success == 0) {
+
+            //Case 1: vlanID= Integer >=1    
+            if ($vlanID != NULL && $vlanID != -1 && $vlanID != 'b') {
+                Logger::ToConsoleAndFile("We are away from home and therefore should see a VLAN ID in dumpstats 99.");
+                Logger::ToConsoleAndFile("Looking for $vlanID in output...");
+
+                //Find the field "NetworkVLANID[0] = <vlan no>"
+                preg_match("/.*NetworkVLANID.*/", $output_array[0], $temp_array);
+                //Extract all info after and including the '=' 
+                $temp_array[0] = strstr($temp_array[0], '=');
+                //Trim off the '=' and any whitespace to extract the value
+                $found_vlanID = trim($temp_array[0], '= \t\n\r');
+
+                if ($found_vlanID == $vlanID) {
+                    Logger::ToConsoleAndFile("We found VLAN $vlanID in the output, success!");
+                    $success = TRUE;
+                } else {
+                    Logger::ToConsoleAndFile("We found VLAN $found_vlanID in the dumpstats 99 output but were looking for $vlanID!");
+                    $success = FALSE;
+                }
+            }
+            //Case 2: Dumpstats output is empty (no VLAN ID).
+            else if ($vlanID == -1) {
+                Logger::ToConsoleAndFile("We are at home and thus should not see any output from dumpstats 99");
+
+                preg_match("/.*NetworkVLANID.*/", $output_array[0], $temp_array);
+                $temp_array[0] = strstr($temp_array[0], '=');
+                $found_vlanID = trim($temp_array[0], '= \t\n\r');
+
+                if (empty($found_vlanID)) {
+                    Logger::ToConsoleAndFile("The user is at home.");
+                    $success = TRUE;
+                } else {
+                    Logger::ToConsoleAndFile("The user is away from home on VLAN $found_vlanID, this is not what we expected!");
+                    $success = FALSE;
+                }
+            }
+            //Case 3: Client is blocked
+            else if ($vlanID == 'b') {
+
+                Logger::ToConsoleAndFile("The client should be blocked, checking the output from dumpstats 99 to confirm this.");
+                Logger::ToConsoleAndFile("Checking status in output...");
+
+                preg_match("/.*Status.*/", $output_array[0], $temp_array);
+                //Check if "Blocked" shows up in the same line as "Status[0] = <status>"
+                if (stripos($temp_array[0], "Blocked") != FALSE) {
+                    Logger::ToConsoleAndFile("Client is blocked, this is what we expected.");
+                    $success = TRUE;
+                } else {
+                    Logger::ToConsoleAndFile("The client does not appear to be blocked, and it should be.");
+                    $success = FALSE;
+                }
+            } else {
+                Logger::toConsoleAndFile("No parameters or NULL parameter given, skipping dumpstats validation...");
+                $success = TRUE;
+            }
+
+            //Case 4: Default- do not perform any validation.
+        } else {
+            Logger::ToConsoleAndFile("Failed to get dumpstats 99 info");
+        }
+
+        return $success;
+    }
 
 }
 

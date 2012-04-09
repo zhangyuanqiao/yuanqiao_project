@@ -164,8 +164,7 @@ class AddNetworkProfile extends MTMTest {
         $bRetCode2 = $this->addVlan("abcdefgh", "LAN_Port", "DHCP_IP", "", "", "", "Enabled");
         if ($bRetCode or $bRetCode2) {
             Step::error("Success to associates both NPs to the LAN port");
-            throw new TestExepction("sdfafafasf");
-            //return FAIL;
+            return FAIL;
         } else {
             Step::ok("Fail to associates both NPs to the LAN port,that is what we expected");
         }

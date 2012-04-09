@@ -1,5 +1,5 @@
 <?php
-require_once ('..\..\..\zhayuanq\Documents\MyScripts\mtm\mtm_always_home\MTMTest.php');
+require_once ('MTMTest.php');
 
 /**
  * Test Objective:
@@ -38,6 +38,34 @@ class Unknown_VLAN_ID_returned_by_RADIUS_at_home extends MTMTest
 	 */
 	public function MyExecute()
 	{
+	    $this->preTest();
+        $sTestUser="vlanuser99_2";
+        $sSetupID=$this->framework->GetTestbed()->GetName();
+        $sTestSsid="MTM_VLAN_23".substr($sSetupID,5,2);
+        $this->updateFallbackMethod($sTestSsid,"Assume_Home");
+        //Create a user that will egress to unknown vlan network (vlan 99)
+        $oUser=new User($sTestUser,$sTestUser,"Enabled");        
+        $oUser->updateEgressVlan('99');
+		
+		$this->syncAPs();
+		
+        $this->wcbAssociateAndAuth("wpa2_dynamic",$sTestUser,$sTestUser,$sTestSsid,"PEAPVER0");
+		
+        Step::start("Check if the traffic must be blocked");
+		
+        if($this->checkContentInPage("/stat/l3_overview.asp","Blocked: Home network unknown")==TRUE)
+        {
+             Step::error("Traffic is blocked,but should be NOT");
+             return FAIL;
+        }
+        else
+        {
+             Step::ok("Traffic is NOT blocked");        
+        }
+
+		$this->updateFallbackMethod($sTestSsid,"None");
+        return PASS;            
+        	
 	}
 
 }

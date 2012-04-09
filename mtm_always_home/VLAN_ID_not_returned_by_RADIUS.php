@@ -1,5 +1,5 @@
 <?php
-require_once ('..\..\..\zhayuanq\Documents\MyScripts\mtm\mtm_always_home\MTMTest.php');
+require_once ('MTMTest.php');
 
 /**
  * Test Objective:
@@ -44,6 +44,9 @@ class VLAN_ID_not_returned_by_RADIUS extends MTMTest
         //Create a user that will egress to unknown vlan network (vlan 99)
         $oUser=new User($sTestUser,$sTestUser,"Enabled");        
         //$oUser->updateEgressVlan('vlan99');
+		
+		$this->syncAPs();
+		
         $this->wcbAssociateAndAuth("wpa2_dynamic",$sTestUser,$sTestUser,$sTestSsid,"PEAPVER0");
 		
         Step::start("Check if the traffic must be blocked");
@@ -61,7 +64,7 @@ class VLAN_ID_not_returned_by_RADIUS extends MTMTest
         return PASS;            
         
 	}
-	}
+	
 
 }
 ?>
